@@ -12,18 +12,19 @@ struct Map {
 void print_map(int map [MS][MS]){
     for(int i = 0; i < MS; i++){
         for(int j = 0; j < MS; j++){
-            std::cout << map[i][j] << " ";
+            std::cout << map[i][j] << "-";
+
         }
         std::cout << std::endl;
     }
 }
 //This uses bresenhaum's algoritihm, does not work with straight vertical
-/*
-void plot_lines(Point p1, Point p2, int map[MS][MS]){
+
+void bresenhaum(Point p1, Point p2, int (&map)[MS][MS]){
     int n_grad = 2 * (p2.y - p1.y);
     int err_grad = n_grad - (p2.x - p1.x);
     for(int x = p1.x, y = p1.y; x <= p2.x; x++){
-        map[x][y]-=2;
+        map[x][y]++;
 
         err_grad += n_grad;
 
@@ -35,7 +36,7 @@ void plot_lines(Point p1, Point p2, int map[MS][MS]){
     }
 
 }
-*/
+
 
 void plot_linesL(Point p1, Point p2, int (&map)[MS][MS]){
     int dx = p2.x - p1.x;
@@ -97,21 +98,92 @@ void plot_lines(Point p1, Point p2, int (&map)[MS][MS]){
         }
     }
 }
-//Add 1 to counter zero index counting
+
+int slope(Point p1, Point p2){
+    double y_change = std::abs(p2.y - p1.y);
+    double x_change = std::abs(p2.x - p1.x);
+
+    std::cout << p2.x << " " << p2.y << std::endl;
+}
+
 void tplot_lines(Point p1, Point p2, int (&map)[MS][MS]){
     //Vertical
     if(p1.x == p2.x){
         int max = std::max(p1.y,p2.y);
         int min = std::min(p1.y,p2.y);
-        for(int i = min; i < max + 1; i++){
-            map[i][p1.x]++;
+        for(int i = min; i <= max; i++){
+           map[i][p1.x]++;
         }
     }
     //horizontal
     else if(p1.y == p2.y){
-        for(int i = std::min(p1.x,p2.x); i < std::max(p1.x,p2.x) + 1; i++){
-            map[p2.y][i]++;
+        for(int i = std::min(p1.x,p2.x); i <= std::max(p1.x,p2.x); i++){
+           map[p2.y][i]++;
         }
+        //Diagonal
+    } else {
+        /*
+       if(p2.x > p1.x && p2.y > p1.y){
+            for(int x = p1.x, y = p1.y; x<=p2.x  && y<=p2.y ; x++,y++){
+                map[y][x]++;
+            }
+        } else {
+            for(int x = std::max(p1.x,p2.x), y = std::min(p1.y,p2.y); x > std::min(p1.x,p2.x) && y <= std::max(p1.y,p2.y) ; x--, y++){
+                map[y][x]++;
+            }
+        }
+        if(p2.x > p1.x && p2.y < p1.y){
+            for(int x = p1.x, y = p1.y; x <= p2.x && y >=p2.y; x++, y-- ){
+                map[y][x]++;
+            }
+        } else {
+            for(int x = p1.x, y = p1.y; x <= p2.x && y <= p2.y; x++, y++ ){
+                map[y][x]++;
+            }
+        }*/
+/*
+        int x0 = p1.x;
+        int y0 = p1.y;
+        int x1 = p2.x;
+        int y1 = p2.y;
+
+        int dir = (x1 - x0) / (y1 - y0);
+
+        if(dir == 1){
+            for(int x = x0, y = y0; x <= x1 && y <= y1; x++, y++){
+                map[y][x]++;
+            }
+        } else {
+            for(int x = x0, y = y0; x <= x1 && y >= y1; x++, y--){
+                map[y][x]++;
+            }
+        }
+        */
+
+        //Calculate direction of line
+        int step_x;
+        int step_y;
+        if(p1.x < p2.x){
+            step_x = 1;
+        } else {
+            step_x = -1;
+        }
+        if(p1.y < p2.y){
+            step_y = 1;
+        } else {
+            step_y = -1;
+        }
+        int x = p1.x;
+        int y = p1.y;
+        while(true){
+            map[y][x]++;
+            if(x == p2.x){
+                break;
+            }
+            x += step_x;
+            y += step_y;
+        }
+
     }
 }
 
@@ -137,6 +209,8 @@ void plot_s_lines(Point p1, Point p2, int (&map)[MS][MS]){
                 map[i][p1.y]++;
             }
         }
+
+
 
 
     }
@@ -198,7 +272,7 @@ int main()
 
     std::string line;
 
-    int pos = 1;
+
     //Fix this for actual input later
     while(std::getline(file,line)){
         std::string delim = " -> ";
@@ -215,15 +289,15 @@ int main()
         std::cout << sx << " " << sy << std::endl;
         std::cout << ex << " " << ey << std::endl;
 
-        int slx = std::stoi(sx);
-        int sly = std::stoi(sy);
-        int elx = std::stoi(ex);
-        int ely = std::stoi(ey);
+        int slx = stoi(sx);
+        int sly = stoi(sy);
+        int elx = stoi(ex);
+        int ely = stoi(ey);
 
-        if(slx == elx || sly == ely){
+       // if(slx == elx || sly == ely){
             starts.push_back({slx,sly});
             ends.push_back({elx,ely});
-        }
+       // }
 
 
 
@@ -239,9 +313,7 @@ int main()
     //Mark point
     std::cout << "============" << std::endl;
     for(int i = 0; i < starts.size(); i++){
-
         tplot_lines(starts[i],ends[i],map);
-
 
 
     }
